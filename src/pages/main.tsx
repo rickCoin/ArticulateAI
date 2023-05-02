@@ -3,13 +3,14 @@ import Header from "@/components/Header";
 import HeroSection from "@/components/HeroSection";
 import ChatWithGPT from "@/components/ChatWithGPT";
 import { useRouter } from "next/router";
-import { observeAuthState } from "@/firebase/firebaseClient";
+import { auth, observeAuthState } from "@/firebase/firebaseClient";
+import { onAuthStateChanged } from "firebase/auth";
 
 const MainPage = () => {
     const router = useRouter();
     const [userID, setUserID] = useState("");
     useEffect(() => {
-        observeAuthState((user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 console.log("User is signed in:");
                 setUserID(user.uid);
@@ -18,6 +19,8 @@ const MainPage = () => {
                 router.push("/login");
             }
         });
+
+        return unsubscribe;
     }, [router]);
 
     return (
