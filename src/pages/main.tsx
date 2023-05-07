@@ -24,7 +24,7 @@ const MainPage = () => {
     }, [router]);
 
     return (
-        <div className="flex flex-col h-screen overflow-y-scroll w-full bg-gradient-to-r from-[#010230] to-[#132b78]">
+        <div className="flex flex-col h-screen overflow-y-scroll w-full bg-gradient-radial from-[#010230] to-[#132b78]">
             <Header />
             <HeroSection />
             <ChatWithGPT userID={userID} />

@@ -1,89 +1,94 @@
-import React, { useEffect, useState } from "react";
-import { useRouter } from "next/router";
+import React, { useState, useEffect } from "react";
+import { collection, getDocs, getFirestore } from "firebase/firestore";
 import { auth } from "@/firebase/firebaseClient";
-import { collection, doc, getDoc, getFirestore } from "firebase/firestore";
+
+import {
+    COLLECTION_NAME_GENERAL_PROMPT_PAIR,
+    COLLECTION_NAME_USER_DATA,
+} from "@/constants/firestore";
 import Header from "@/components/Header";
-import { COLLECTION_NAME_PROMPT_PAIR } from "@/constants/firestore";
 
-type HistoryRow = {
-    userInput: string[];
-    userOutput: string[];
-};
-
+interface UserData {
+    user_input: string;
+    user_outputs: string[];
+}
+// todo move the logic to api
 const fetchUserHistory = async (userID: string) => {
+    const allUserData: UserData[] = [];
     const db = getFirestore();
-    const userDocRef = doc(collection(db, COLLECTION_NAME_PROMPT_PAIR), userID);
+
+    // collection path: COLLECTION_NAME_GENERAL_PROMPT_PAIR/userID/pairs
+    const pair_collection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_GENERAL_PROMPT_PAIR
+    );
 
     try {
-        const userDocSnap = await getDoc(userDocRef);
+        const pair_docs_snapshot = await getDocs(pair_collection);
 
-        if (userDocSnap.exists()) {
-            return userDocSnap.data() as HistoryRow;
-        } else {
-            return null;
-        }
+        pair_docs_snapshot.forEach((doc) => {
+            const input_data = doc.data() as UserData;
+            allUserData.push(input_data);
+        });
+
+        return allUserData;
     } catch (error) {
         console.error("Error fetching user history: ", error);
         return null;
     }
 };
 
-const HistoryPage: React.FC = () => {
-    const [history, setHistory] = useState<HistoryRow | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    const router = useRouter();
+const TablePage: React.FC = () => {
+    const [inputs, setInputs] = useState<UserData[]>([]);
     const userID = auth.currentUser;
 
     useEffect(() => {
         if (userID == null) {
-            router.push("/login");
         } else {
-            fetchUserHistory(userID.uid).then((data) => setHistory(data));
-            setLoading(false);
+            const fetchData = async () => {
+                const data = await fetchUserHistory(userID.uid);
+                if (data != null) {
+                    setInputs(data);
+                }
+            };
+
+            fetchData();
         }
-    }, [userID, router]);
+    }, []);
 
     return (
-        <div className="flex flex-col h-screen overflow-y-scroll w-full bg-gradient-to-r from-[#010230] to-[#132b78]">
+        <div className="flex flex-col h-screen overflow-y-scroll w-full bg-gradient-radial from-blue-dark to-blue-light">
             <Header />
-            <div className="container mx-auto p-4">
-                <h2 className="text-2xl font-bold text-yellow-light mb-4">
-                    User History
-                </h2>
-                {loading ? (
-                    <p className="text-white">Loading history...</p>
-                ) : history ? (
-                    <table className="w-full text-yellow-light">
-                        <thead>
-                            <tr>
-                                <th className="border border-yellow-light p-2">
-                                    User Input
-                                </th>
-                                <th className="border border-yellow-light p-2">
-                                    User Output
-                                </th>
+            <div className="container mx-auto px-4 py-8 ">
+                <table className="w-full table-auto">
+                    {/* ... */}
+                    <tbody>
+                        {inputs.map((input_data, index) => (
+                            <tr
+                                key={index}
+                                className="bg-transparent  text-yellow-light"
+                            >
+                                <td className="border border-yellow-light px-4 py-2">
+                                    {input_data.user_input}
+                                </td>
+                                <td className="border border-yellow-light px-8 py-2">
+                                    <ul className="list-disc">
+                                        {input_data.user_outputs.map(
+                                            (output, index) => (
+                                                <li key={index}>{output}</li>
+                                            )
+                                        )}
+                                    </ul>
+                                </td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {history.userInput.map((input, index) => (
-                                <tr key={index}>
-                                    <td className="border border-yellow-light p-2">
-                                        {input}
-                                    </td>
-                                    <td className="border border-yellow-light p-2">
-                                        {history.userOutput[index]}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p className="text-yellow-light">No history found.</p>
-                )}
+                        ))}
+                    </tbody>
+                </table>
             </div>
         </div>
     );
 };
 
-export default HistoryPage;
+export default TablePage;

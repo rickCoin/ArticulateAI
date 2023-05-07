@@ -8,15 +8,27 @@ import {
     doc, getFirestore
 } from "firebase/firestore";
 import { firebase } from "./firebaseClient";
-import { COLLECTION_NAME_PROMPT_PAIR, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
+import { COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
 
 const db = getFirestore(firebase)
-const usersCollectionRef = collection(db, COLLECTION_NAME_PROMPT_PAIR);
 
-const checkUserInDoc = async (userID: string) => {
-    const userDocRef = doc(db, COLLECTION_NAME_PROMPT_PAIR, userID);
+import { createHash } from "crypto";
+
+const hashUserInput = (user_input: string): string => {
+    user_input = user_input.trim();
+    const hashed_input = createHash("sha256").update(user_input, "utf-8").digest("hex");
+    return hashed_input;
+};
+
+
+const userDataExist = async (userID: string) => {
+    const userCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA
+    );
+    const userDataDocRef = doc(userCollection, userID);
     try {
-        const userDocSnap = await getDoc(userDocRef);
+        const userDocSnap = await getDoc(userDataDocRef);
         if (userDocSnap.exists()) {
             console.log("User ID exists");
             return true;
@@ -30,31 +42,53 @@ const checkUserInDoc = async (userID: string) => {
     }
 };
 
-const createUser = async (userID: string, userInput: string, userOutput: string) => {
-    if (await checkUserInDoc(userID)) {
-        updateUser(userID, userInput, userOutput)
-        return
-    }
-    try {
-        const userDocRef = doc(usersCollectionRef, userID);
-        await setDoc(userDocRef, { [FIELD_NAME_USER_INPUT]: [userInput], [FIELD_NAME_USER_OUTPUT]: [userOutput] });
-        console.log("Document written with ID: ", userDocRef.id);
-        console.log("userInput: ", userInput);
-        console.log("userOutput: ", userOutput);
 
-    } catch (e) {
-        console.error("Error adding document: ", e);
-    }
-};
+const setUserData = async (userID: string, userInput: string, userOutput: string) => {
+    console.log("setUserData")
+    console.log("userID: ", userID)
 
-const updateUser = async (userID: string, userInput: string, userOutput: string) => {
-    const userDocRef = doc(db, COLLECTION_NAME_PROMPT_PAIR, userID);
+    // for prompt doc id
+    const hashInput = hashUserInput(userInput.trim())
+    console.log("userInput: ", userInput)
+    console.log("userOutput: ", userOutput)
+
+    const userDataCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA
+    );
+
+    const generalPromptCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_GENERAL_PROMPT_PAIR
+    );
+
+    const userDataDocRef = doc(userDataCollection, userID);
+    const generalPromptDocRef = doc(generalPromptCollection, hashInput);
+    const generalPromptSnap = await getDoc(generalPromptDocRef);
+
     try {
-        await updateDoc(userDocRef, {
-            [FIELD_NAME_USER_INPUT]: arrayUnion(userInput),
-            [FIELD_NAME_USER_OUTPUT]: arrayUnion(userOutput),
-        });
-        console.log("Document updated successfully");
+        const haveUserData = await userDataExist(userID)
+        if (!haveUserData) {
+            console.log("no user data")
+            console.log("set userDataDocRef")
+            await setDoc(userDataDocRef, { [FIELD_NAME_USER_ID]: userID });
+        }
+
+        if (generalPromptSnap.exists()) {
+            console.log("update generalPromptDocRef")
+
+            await updateDoc(generalPromptDocRef, {
+                [FIELD_NAME_USER_INPUT]: userInput,
+                [FIELD_NAME_USER_OUTPUT]: arrayUnion(userOutput),
+            });
+        } else {
+            console.log("set generalPromptDocRef")
+            await setDoc(generalPromptDocRef, { [FIELD_NAME_USER_INPUT]: userInput, [FIELD_NAME_USER_OUTPUT]: [userOutput] });
+        }
+
+
     } catch (error) {
         console.error("Error updating document: ", error);
     }
@@ -65,4 +99,4 @@ const deleteUser = async (id: string) => {
     await deleteDoc(userDoc);
 };
 
-export { createUser, updateUser, deleteUser, checkUserInDoc };
+export { setUserData, deleteUser, userDataExist };

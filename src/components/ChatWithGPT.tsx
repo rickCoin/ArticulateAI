@@ -2,8 +2,7 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import UserInputForm from "./UserInputForm";
 import AIResponseSection from "./AIResponseSection";
-import { createUser, updateUser, checkUserInDoc } from "@/firebase/fireStore";
-import { auth } from "@/firebase/firebaseClient";
+import { setUserData } from "@/firebase/fireStore";
 
 interface ChatWithGPTProps {
     userID: string;
@@ -30,13 +29,7 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
             setGeneratedText(newGeneratedText);
             console.log(generatedText);
             console.log("----- add to db");
-
-            if (await checkUserInDoc(userID)) {
-                updateUser(userID, userInput, newGeneratedText);
-            } else {
-                createUser(userID, userInput, newGeneratedText);
-            }
-
+            await setUserData(userID, userInput, newGeneratedText);
             setLoading(false);
         } catch (error) {
             console.error(error);
