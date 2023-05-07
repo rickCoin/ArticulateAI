@@ -4,16 +4,45 @@ import { auth } from "@/firebase/firebaseClient";
 
 import {
     COLLECTION_NAME_GENERAL_PROMPT_PAIR,
+    COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR,
     COLLECTION_NAME_USER_DATA,
 } from "@/constants/firestore";
 import Header from "@/components/Header";
+import Button from "@/components/Button";
 
 interface UserData {
     user_input: string;
     user_outputs: string[];
 }
 // todo move the logic to api
-const fetchUserHistory = async (userID: string) => {
+const fetchPhotographicHistory = async (userID: string) => {
+    const allUserData: UserData[] = [];
+    const db = getFirestore();
+
+    // collection path: COLLECTION_NAME_GENERAL_PROMPT_PAIR/userID/pairs
+    const pair_collection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR
+    );
+
+    try {
+        const pair_docs_snapshot = await getDocs(pair_collection);
+
+        pair_docs_snapshot.forEach((doc) => {
+            const input_data = doc.data() as UserData;
+            allUserData.push(input_data);
+        });
+
+        return allUserData;
+    } catch (error) {
+        console.error("Error fetching user history: ", error);
+        return null;
+    }
+};
+
+const fetchGeneralHistory = async (userID: string) => {
     const allUserData: UserData[] = [];
     const db = getFirestore();
 
@@ -44,48 +73,91 @@ const TablePage: React.FC = () => {
     const [inputs, setInputs] = useState<UserData[]>([]);
     const userID = auth.currentUser;
 
+    const [selectedHistory, setSelectedHistory] = useState("general"); // New state for selected history
+    const [loading, setLoading] = useState(false); // New loading state
+
     useEffect(() => {
         if (userID == null) {
         } else {
             const fetchData = async () => {
-                const data = await fetchUserHistory(userID.uid);
+                setLoading(true);
+                let data;
+                if (selectedHistory === "general") {
+                    data = await fetchGeneralHistory(userID.uid);
+                } else {
+                    data = await fetchPhotographicHistory(userID.uid);
+                }
                 if (data != null) {
                     setInputs(data);
+                    setLoading(false);
                 }
             };
 
             fetchData();
         }
-    }, []);
+    }, [selectedHistory]); // Add selectedHistory to the dependency array
 
+    const handleSwitchHistory = () => {
+        setSelectedHistory((prevSelectedHistory) =>
+            prevSelectedHistory === "general" ? "photographic" : "general"
+        );
+    };
     return (
         <div className="flex flex-col h-screen overflow-y-scroll w-full bg-gradient-radial from-blue-dark to-blue-light">
             <Header />
+            <Button
+                onClick={handleSwitchHistory}
+                text="Switch Type"
+                className="border bg-transparent text-white mt-4 mb-4 py-2 px-4 rounded-2xl self-center hover:bg-yellow-light"
+            />
+            <h1 className=" text-center text-lg text-yellow-light font-bold ">
+                {selectedHistory === "general"
+                    ? "Photographic Prompts History"
+                    : "General Prompts History"}
+            </h1>
             <div className="container mx-auto px-4 py-8 ">
-                <table className="w-full table-auto">
-                    {/* ... */}
-                    <tbody>
-                        {inputs.map((input_data, index) => (
-                            <tr
-                                key={index}
-                                className="bg-transparent  text-yellow-light"
-                            >
-                                <td className="border border-yellow-light px-4 py-2">
-                                    {input_data.user_input}
-                                </td>
-                                <td className="border border-yellow-light px-8 py-2">
-                                    <ul className="list-disc">
-                                        {input_data.user_outputs.map(
-                                            (output, index) => (
-                                                <li key={index}>{output}</li>
-                                            )
-                                        )}
-                                    </ul>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
+                {loading ? (
+                    <div className="text-center text-yellow-light">
+                        Loading...
+                    </div>
+                ) : (
+                    <table className="w-full table-auto">
+                        <tbody>
+                            {inputs.length === 0 ? (
+                                <tr>
+                                    <td
+                                        colSpan={2}
+                                        className="text-center text-yellow-light"
+                                    >
+                                        No data available
+                                    </td>
+                                </tr>
+                            ) : (
+                                inputs.map((input_data, index) => (
+                                    <tr
+                                        key={index}
+                                        className="bg-transparent  text-yellow-light"
+                                    >
+                                        <td className="border border-yellow-light px-4 py-2">
+                                            {input_data.user_input}
+                                        </td>
+                                        <td className="border border-yellow-light px-8 py-2">
+                                            <ul className="list-disc">
+                                                {input_data.user_outputs.map(
+                                                    (output, index) => (
+                                                        <li key={index}>
+                                                            {output}
+                                                        </li>
+                                                    )
+                                                )}
+                                            </ul>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                )}
             </div>
         </div>
     );

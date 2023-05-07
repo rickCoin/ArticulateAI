@@ -8,7 +8,7 @@ import {
     doc, getFirestore
 } from "firebase/firestore";
 import { firebase } from "./firebaseClient";
-import { COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
+import { COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
 
 const db = getFirestore(firebase)
 
@@ -43,30 +43,13 @@ const userDataExist = async (userID: string) => {
 };
 
 
-const setUserData = async (userID: string, userInput: string, userOutput: string) => {
-    console.log("setUserData")
-    console.log("userID: ", userID)
-
-    // for prompt doc id
-    const hashInput = hashUserInput(userInput.trim())
-    console.log("userInput: ", userInput)
-    console.log("userOutput: ", userOutput)
-
+const setUserData = async (userID: string) => {
     const userDataCollection = collection(
         db,
         COLLECTION_NAME_USER_DATA
     );
 
-    const generalPromptCollection = collection(
-        db,
-        COLLECTION_NAME_USER_DATA,
-        userID,
-        COLLECTION_NAME_GENERAL_PROMPT_PAIR
-    );
-
     const userDataDocRef = doc(userDataCollection, userID);
-    const generalPromptDocRef = doc(generalPromptCollection, hashInput);
-    const generalPromptSnap = await getDoc(generalPromptDocRef);
 
     try {
         const haveUserData = await userDataExist(userID)
@@ -76,6 +59,26 @@ const setUserData = async (userID: string, userInput: string, userOutput: string
             await setDoc(userDataDocRef, { [FIELD_NAME_USER_ID]: userID });
         }
 
+    } catch (error) {
+        console.error("Error updating document: ", error);
+    }
+};
+
+
+const setGeneralPrompt = async (userID: string, userInput: string, userOutput: string) => {
+    console.log("setGeneralPrompt")
+    await setUserData(userID)
+    const hashInput = hashUserInput(userInput.trim())
+
+    const generalPromptCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_GENERAL_PROMPT_PAIR
+    );
+    const generalPromptDocRef = doc(generalPromptCollection, hashInput);
+    const generalPromptSnap = await getDoc(generalPromptDocRef);
+    try {
         if (generalPromptSnap.exists()) {
             console.log("update generalPromptDocRef")
 
@@ -88,15 +91,51 @@ const setUserData = async (userID: string, userInput: string, userOutput: string
             await setDoc(generalPromptDocRef, { [FIELD_NAME_USER_INPUT]: userInput, [FIELD_NAME_USER_OUTPUT]: [userOutput] });
         }
 
+    } catch (error) {
+        console.error("Error updating document: ", error);
+    }
+}
+
+
+const setPhotographicPrompt = async (userID: string, userInput: string, userOutput: string) => {
+    console.log("setPhotographicPrompt")
+
+    await setUserData(userID)
+    const hashInput = hashUserInput(userInput.trim())
+    const photographicPromptCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR
+    );
+    const photographicPromptDocRef = doc(photographicPromptCollection, hashInput);
+    const photographicPromptSnap = await getDoc(photographicPromptDocRef);
+    try {
+        if (photographicPromptSnap.exists()) {
+            console.log("update photographicPromptDocRef")
+
+            await updateDoc(photographicPromptDocRef, {
+                [FIELD_NAME_USER_INPUT]: userInput,
+                [FIELD_NAME_USER_OUTPUT]: arrayUnion(userOutput),
+            });
+        } else {
+            console.log("set photographicPromptDocRef")
+            await setDoc(photographicPromptDocRef, { [FIELD_NAME_USER_INPUT]: userInput, [FIELD_NAME_USER_OUTPUT]: [userOutput] });
+        }
+
 
     } catch (error) {
         console.error("Error updating document: ", error);
     }
-};
+}
+
+
+
+
 
 const deleteUser = async (id: string) => {
     const userDoc = doc(db, "users", id);
     await deleteDoc(userDoc);
 };
 
-export { setUserData, deleteUser, userDataExist };
+export { setUserData, setPhotographicPrompt, setGeneralPrompt };

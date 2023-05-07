@@ -2,7 +2,7 @@ import axios from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
 // TODO
-const GENERATE_URL = "http://127.0.0.1:8080/photorealistic";
+const GENERATE_URL = "https://flask-api-383807.wn.r.appspot.com/photographic";
 
 export default async function handler(
     req: NextApiRequest,
@@ -12,7 +12,7 @@ export default async function handler(
         console.log("POST");
         const userPrompt = req.body.prompt; // Access the prompt data from the request body
         try {
-            console.log("photorealistic function");
+            console.log("photographic function");
             const response = await axios.post(GENERATE_URL, {
                 prompt: userPrompt,
             });
