@@ -112,8 +112,8 @@ const TablePage: React.FC = () => {
             />
             <h1 className=" text-center text-lg text-yellow-light font-bold ">
                 {selectedHistory === "general"
-                    ? "Photographic Prompts History"
-                    : "General Prompts History"}
+                    ? "General Prompts History"
+                    : "Photographic Prompts History"}
             </h1>
             <div className="container mx-auto px-4 py-8 ">
                 {loading ? (
