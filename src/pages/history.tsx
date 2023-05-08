@@ -107,14 +107,14 @@ const TablePage: React.FC = () => {
             <Header />
             <Button
                 onClick={handleSwitchHistory}
-                text="Switch Type"
+                text={
+                    selectedHistory === "general"
+                        ? "Photographic Prompts History"
+                        : "General Prompts History"
+                }
                 className="border bg-transparent text-white mt-4 mb-4 py-2 px-4 rounded-2xl self-center hover:bg-yellow-light"
             />
-            <h1 className=" text-center text-lg text-yellow-light font-bold ">
-                {selectedHistory === "general"
-                    ? "General Prompts History"
-                    : "Photographic Prompts History"}
-            </h1>
+
             <div className="container mx-auto px-4 py-8 ">
                 {loading ? (
                     <div className="text-center text-yellow-light">

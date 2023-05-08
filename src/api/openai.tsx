@@ -6,6 +6,8 @@ interface ApiResponse {
 }
 
 async function photographicApiCall(userInput: string): Promise<ApiResponse> {
+    console.log("photographicApiCall:");
+
     console.log("userInput: ", userInput);
     const apiUrl: string =
         "https://flask-api-383807.wn.r.appspot.com/photographic";
@@ -27,6 +29,8 @@ async function photographicApiCall(userInput: string): Promise<ApiResponse> {
 }
 
 async function generalApiCall(userInput: string): Promise<ApiResponse> {
+    console.log("generalApiCall:");
+
     console.log("userInput: ", userInput);
 
     const apiUrl: string = "https://flask-api-383807.wn.r.appspot.com/generate";
