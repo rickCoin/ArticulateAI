@@ -33,7 +33,7 @@ const AIResponseSection: React.FC<AIResponseSectionProps> = ({
             <Button
                 className="border bg-transparent text-white mt-4 mb-4 rounded-2xl  hover:bg-blue-light"
                 text={
-                    mode === GENERAL_MODE ? "Photographic mode" : "General mode"
+                    mode === GENERAL_MODE ? "General mode" : "Photographic mode"
                 }
                 onClick={toggleAPI}
             />

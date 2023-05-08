@@ -109,8 +109,8 @@ const TablePage: React.FC = () => {
                 onClick={handleSwitchHistory}
                 text={
                     selectedHistory === "general"
-                        ? "Photographic Prompts History"
-                        : "General Prompts History"
+                        ? "General Prompts History"
+                        : "Photographic Prompts History"
                 }
                 className="border bg-transparent text-white mt-4 mb-4 py-2 px-4 rounded-2xl self-center hover:bg-yellow-light"
             />
