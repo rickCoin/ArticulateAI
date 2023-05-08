@@ -4,6 +4,7 @@ import UserInputForm from "./UserInputForm";
 import AIResponseSection from "./AIResponseSection";
 import { setPhotographicPrompt, setGeneralPrompt } from "@/firebase/fireStore";
 import Button from "./Button";
+import openai from "@/api/openai";
 
 interface ChatWithGPTProps {
     userID: string;
@@ -28,10 +29,14 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
         setLoading(true);
 
         try {
-            const response = await axios.post(apiPath, {
-                prompt: userInput,
-            });
-            const newGeneratedText = response.data.generatedText;
+            let response = null;
+            if (apiPath === "/api/gpt") {
+                response = await openai.photographicApiCall(userInput);
+            } else {
+                response = await openai.photographicApiCall(userInput);
+            }
+
+            const newGeneratedText = response.generatedText;
             setGeneratedText(newGeneratedText);
             console.log(generatedText);
             console.log("----- add to db");
@@ -49,6 +54,8 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
             setLoading(false);
         } catch (error) {
             console.error(error);
+            setGeneratedText("report error");
+            setLoading(false);
         }
     };
 
