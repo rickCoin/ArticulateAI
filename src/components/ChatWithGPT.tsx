@@ -31,7 +31,7 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
         try {
             let response = null;
             if (apiPath === "/api/gpt") {
-                response = await openai.photographicApiCall(userInput);
+                response = await openai.generalApiCall(userInput);
             } else {
                 response = await openai.photographicApiCall(userInput);
             }
