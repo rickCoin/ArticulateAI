@@ -141,7 +141,7 @@ const TablePage: React.FC = () => {
                 <Button
                     className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
                         selectedHistory === GENERAL_MODE
-                            ? " bg-[#9b4f1f]"
+                            ? " bg-yellow-light"
                             : "bg-transparent"
                     } whitespace-nowrap`}
                     text="General Mode"
@@ -150,7 +150,7 @@ const TablePage: React.FC = () => {
                 <Button
                     className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
                         selectedHistory === PHOTOGRAPHY_MODE
-                            ? "bg-[#9b4f1f]"
+                            ? "bg-yellow-light"
                             : "bg-transparent"
                     } whitespace-nowrap`}
                     text="Photography Mode"
@@ -159,7 +159,7 @@ const TablePage: React.FC = () => {
                 <Button
                     className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
                         selectedHistory === GENERAL_MODE_V2
-                            ? "bg-[#9b4f1f]"
+                            ? "bg-yellow-light"
                             : "bg-transparent"
                     } whitespace-nowrap`}
                     text="General Mode V2"
