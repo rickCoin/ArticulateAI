@@ -54,7 +54,7 @@ async function generalApiCall(userInput: string): Promise<ApiResponse> {
 }
 
 async function generalV2ApiCall(userInput: string): Promise<ApiResponse> {
-    console.log("generalApiCall:");
+    console.log("generalV2ApiCall:");
 
     console.log("userInput: ", userInput);
 

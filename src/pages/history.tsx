@@ -4,11 +4,17 @@ import { auth } from "@/firebase/firebaseClient";
 
 import {
     COLLECTION_NAME_GENERAL_PROMPT_PAIR,
+    COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR,
     COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR,
     COLLECTION_NAME_USER_DATA,
 } from "@/constants/firestore";
 import Header from "@/components/Header";
 import Button from "@/components/Button";
+import {
+    GENERAL_MODE,
+    GENERAL_MODE_V2,
+    PHOTOGRAPHY_MODE,
+} from "@/constants/api";
 
 interface UserData {
     user_input: string;
@@ -68,7 +74,32 @@ const fetchGeneralHistory = async (userID: string) => {
         return null;
     }
 };
+const fetchGeneralV2History = async (userID: string) => {
+    const allUserData: UserData[] = [];
+    const db = getFirestore();
 
+    // collection path: COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR/userID/pairs
+    const pair_collection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR
+    );
+
+    try {
+        const pair_docs_snapshot = await getDocs(pair_collection);
+
+        pair_docs_snapshot.forEach((doc) => {
+            const input_data = doc.data() as UserData;
+            allUserData.push(input_data);
+        });
+
+        return allUserData;
+    } catch (error) {
+        console.error("Error fetching user history: ", error);
+        return null;
+    }
+};
 const TablePage: React.FC = () => {
     const [inputs, setInputs] = useState<UserData[]>([]);
     const userID = auth.currentUser;
@@ -76,14 +107,20 @@ const TablePage: React.FC = () => {
     const [selectedHistory, setSelectedHistory] = useState("general"); // New state for selected history
     const [loading, setLoading] = useState(false); // New loading state
 
+    const toggleAPI = (prevMode: any) => {
+        setSelectedHistory(prevMode);
+        console.log(prevMode);
+    };
     useEffect(() => {
         if (userID == null) {
         } else {
             const fetchData = async () => {
                 setLoading(true);
                 let data;
-                if (selectedHistory === "general") {
+                if (selectedHistory === GENERAL_MODE) {
                     data = await fetchGeneralHistory(userID.uid);
+                } else if (selectedHistory === GENERAL_MODE_V2) {
+                    data = await fetchGeneralV2History(userID.uid);
                 } else {
                     data = await fetchPhotographyHistory(userID.uid);
                 }
@@ -97,23 +134,38 @@ const TablePage: React.FC = () => {
         }
     }, [selectedHistory]); // Add selectedHistory to the dependency array
 
-    const handleSwitchHistory = () => {
-        setSelectedHistory((prevSelectedHistory) =>
-            prevSelectedHistory === "general" ? "photography" : "general"
-        );
-    };
     return (
         <div className="flex flex-col h-screen overflow-y-scroll w-full bg-gradient-radial from-blue-dark to-blue-light">
             <Header />
-            <Button
-                onClick={handleSwitchHistory}
-                text={
-                    selectedHistory === "general"
-                        ? "General Prompts History"
-                        : "Photography Prompts History"
-                }
-                className="border bg-transparent text-white mt-4 mb-4 py-2 px-4 rounded-2xl self-center hover:bg-yellow-light"
-            />
+            <div className="flex gap-4 px-32 justify-center">
+                <Button
+                    className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
+                        selectedHistory === GENERAL_MODE
+                            ? " bg-[#9b4f1f]"
+                            : "bg-transparent"
+                    } whitespace-nowrap`}
+                    text="General Mode"
+                    onClick={() => toggleAPI(GENERAL_MODE)}
+                />
+                <Button
+                    className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
+                        selectedHistory === PHOTOGRAPHY_MODE
+                            ? "bg-[#9b4f1f]"
+                            : "bg-transparent"
+                    } whitespace-nowrap`}
+                    text="Photography Mode"
+                    onClick={() => toggleAPI(PHOTOGRAPHY_MODE)}
+                />
+                <Button
+                    className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
+                        selectedHistory === GENERAL_MODE_V2
+                            ? "bg-[#9b4f1f]"
+                            : "bg-transparent"
+                    } whitespace-nowrap`}
+                    text="General Mode V2"
+                    onClick={() => toggleAPI(GENERAL_MODE_V2)}
+                />
+            </div>
 
             <div className="container mx-auto px-4 py-8 ">
                 {loading ? (

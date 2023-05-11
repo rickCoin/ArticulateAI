@@ -8,7 +8,7 @@ import {
     doc, getFirestore
 } from "firebase/firestore";
 import { firebase } from "./firebaseClient";
-import { COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
+import { COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR, COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
 
 const db = getFirestore(firebase)
 
@@ -129,7 +129,37 @@ const setPhotographicPrompt = async (userID: string, userInput: string, userOutp
     }
 }
 
+const setGenerateV2Prompt = async (userID: string, userInput: string, userOutput: string) => {
+    console.log("setGenerateV2Prompt")
 
+    await setUserData(userID)
+    const hashInput = hashUserInput(userInput.trim())
+    const generateV2PromptCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR
+    );
+    const generateV2PromptDocRef = doc(generateV2PromptCollection, hashInput);
+    const generateV2PromptSnap = await getDoc(generateV2PromptDocRef);
+    try {
+        if (generateV2PromptSnap.exists()) {
+            console.log("update generateV2PromptDocRef")
+
+            await updateDoc(generateV2PromptDocRef, {
+                [FIELD_NAME_USER_INPUT]: userInput,
+                [FIELD_NAME_USER_OUTPUT]: arrayUnion(userOutput),
+            });
+        } else {
+            console.log("set generateV2PromptDocRef")
+            await setDoc(generateV2PromptDocRef, { [FIELD_NAME_USER_INPUT]: userInput, [FIELD_NAME_USER_OUTPUT]: [userOutput] });
+        }
+
+
+    } catch (error) {
+        console.error("Error updating document: ", error);
+    }
+}
 
 
 
@@ -138,4 +168,4 @@ const deleteUser = async (id: string) => {
     await deleteDoc(userDoc);
 };
 
-export { setUserData, setPhotographicPrompt, setGeneralPrompt };
+export { setUserData, setPhotographicPrompt, setGeneralPrompt, setGenerateV2Prompt };

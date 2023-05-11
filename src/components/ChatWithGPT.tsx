@@ -2,7 +2,11 @@ import React, { useState, ChangeEvent, FormEvent } from "react";
 import axios from "axios";
 import UserInputForm from "./UserInputForm";
 import AIResponseSection from "./AIResponseSection";
-import { setPhotographicPrompt, setGeneralPrompt } from "@/firebase/fireStore";
+import {
+    setPhotographicPrompt,
+    setGeneralPrompt,
+    setGenerateV2Prompt,
+} from "@/firebase/fireStore";
 import Button from "./Button";
 import openai from "@/api/openai";
 import {
@@ -43,11 +47,7 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
                 response = await openai.generalV2ApiCall(userInput);
                 const newGeneratedText = response.generatedText;
                 setGeneratedText(newGeneratedText);
-                await setPhotographicPrompt(
-                    userID,
-                    userInput,
-                    newGeneratedText
-                );
+                await setGenerateV2Prompt(userID, userInput, newGeneratedText);
             } else {
                 response = await openai.photographyApiCall(userInput);
                 const newGeneratedText = response.generatedText;

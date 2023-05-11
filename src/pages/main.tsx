@@ -13,6 +13,7 @@ const MainPage = () => {
         const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
                 console.log("User is signed in:");
+                console.log("user.uid: ", user.uid);
                 setUserID(user.uid);
             } else {
                 console.log("User is not signed in");

@@ -14,7 +14,7 @@ const LoginPage = () => {
             const result = await signInWithPopup(auth, googleProvider);
             // Check if the user object exists
             if (result.user) {
-                console.error("User login");
+                console.log("User login");
                 // Redirect to the main page
                 router.push("/main");
             } else {
