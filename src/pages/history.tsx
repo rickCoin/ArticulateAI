@@ -15,7 +15,7 @@ interface UserData {
     user_outputs: string[];
 }
 // todo move the logic to api
-const fetchPhotographicHistory = async (userID: string) => {
+const fetchPhotographyHistory = async (userID: string) => {
     const allUserData: UserData[] = [];
     const db = getFirestore();
 
@@ -85,7 +85,7 @@ const TablePage: React.FC = () => {
                 if (selectedHistory === "general") {
                     data = await fetchGeneralHistory(userID.uid);
                 } else {
-                    data = await fetchPhotographicHistory(userID.uid);
+                    data = await fetchPhotographyHistory(userID.uid);
                 }
                 if (data != null) {
                     setInputs(data);
@@ -99,7 +99,7 @@ const TablePage: React.FC = () => {
 
     const handleSwitchHistory = () => {
         setSelectedHistory((prevSelectedHistory) =>
-            prevSelectedHistory === "general" ? "photographic" : "general"
+            prevSelectedHistory === "general" ? "photography" : "general"
         );
     };
     return (
@@ -110,7 +110,7 @@ const TablePage: React.FC = () => {
                 text={
                     selectedHistory === "general"
                         ? "General Prompts History"
-                        : "Photographic Prompts History"
+                        : "Photography Prompts History"
                 }
                 className="border bg-transparent text-white mt-4 mb-4 py-2 px-4 rounded-2xl self-center hover:bg-yellow-light"
             />

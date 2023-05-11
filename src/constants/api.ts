@@ -1,3 +1,4 @@
 export const GENERAL_MODE = "general";
-export const PHOTOGRAPHIC_MODE = "photographic";
+export const PHOTOGRAPHY_MODE = "photographic";
+export const GENERAL_MODE_V2 = "general_v2";
 
