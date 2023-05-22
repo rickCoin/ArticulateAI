@@ -8,7 +8,11 @@ import {
     doc, getFirestore
 } from "firebase/firestore";
 import { firebase } from "./firebaseClient";
-import { COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR, COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID, FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT } from "@/constants/firestore";
+import {
+    COLLECTION_NAME_GENERAL_PROMPT_PAIR, COLLECTION_NAME_GENERAL_V2_PROMPT_PAIR, COLLECTION_NAME_ANIME_PROMPT_PAIR,
+    COLLECTION_NAME_PHOTOGRAPHIC_PROMPT_PAIR, COLLECTION_NAME_USER_DATA, FIELD_NAME_USER_ID,
+    FIELD_NAME_USER_INPUT, FIELD_NAME_USER_OUTPUT
+} from "@/constants/firestore";
 
 const db = getFirestore(firebase)
 
@@ -161,6 +165,37 @@ const setGenerateV2Prompt = async (userID: string, userInput: string, userOutput
     }
 }
 
+const setAnimePrompt = async (userID: string, userInput: string, userOutput: string) => {
+    console.log("setAnimePrompt")
+
+    await setUserData(userID)
+    const hashInput = hashUserInput(userInput.trim())
+    const animePromptCollection = collection(
+        db,
+        COLLECTION_NAME_USER_DATA,
+        userID,
+        COLLECTION_NAME_ANIME_PROMPT_PAIR
+    );
+    const animePromptDocRef = doc(animePromptCollection, hashInput);
+    const animePromptSnap = await getDoc(animePromptDocRef);
+    try {
+        if (animePromptSnap.exists()) {
+            console.log("update animePromptDocRef")
+
+            await updateDoc(animePromptDocRef, {
+                [FIELD_NAME_USER_INPUT]: userInput,
+                [FIELD_NAME_USER_OUTPUT]: arrayUnion(userOutput),
+            });
+        } else {
+            console.log("set animePromptDocRef")
+            await setDoc(animePromptDocRef, { [FIELD_NAME_USER_INPUT]: userInput, [FIELD_NAME_USER_OUTPUT]: [userOutput] });
+        }
+
+
+    } catch (error) {
+        console.error("Error updating document: ", error);
+    }
+}
 
 
 const deleteUser = async (id: string) => {
@@ -168,4 +203,4 @@ const deleteUser = async (id: string) => {
     await deleteDoc(userDoc);
 };
 
-export { setUserData, setPhotographicPrompt, setGeneralPrompt, setGenerateV2Prompt };
+export { setUserData, setPhotographicPrompt, setGeneralPrompt, setGenerateV2Prompt, setAnimePrompt };

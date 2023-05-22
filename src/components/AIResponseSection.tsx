@@ -9,15 +9,11 @@ import {
 interface AIResponseSectionProps {
     aiResponse: string;
     loading: boolean;
-    toggleAPI: (mode: string) => void;
-    mode: string;
 }
 
 const AIResponseSection: React.FC<AIResponseSectionProps> = ({
     aiResponse,
     loading,
-    toggleAPI,
-    mode,
 }) => {
     const handleCopy = async () => {
         try {

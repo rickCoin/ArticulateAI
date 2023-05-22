@@ -4,6 +4,7 @@ import {
     GENERAL_MODE,
     GENERAL_MODE_V2,
     PHOTOGRAPHY_MODE,
+    ANIME_MODE,
 } from "@/constants/api";
 
 interface UserInputFormProps {
@@ -22,34 +23,43 @@ const UserInputForm: React.FC<UserInputFormProps> = ({
     mode,
 }) => {
     return (
-        <div className="flex flex-col items-center mt-4 mb-4 outline outline-offset-2  outline-[#9b4f1f] rounded-2xl ">
-            <div className="flex gap-4 px-32">
+        <div className="flex flex-col items-center mt-4 mb-4 outline outline-offset-2  outline-yellow-dark rounded-2xl ">
+            <div className="flex gap-1 px-32">
                 <Button
                     className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
                         mode === GENERAL_MODE
-                            ? " bg-[#9b4f1f]"
+                            ? " bg-yellow-dark"
                             : "bg-transparent"
                     } whitespace-nowrap`}
-                    text="General Mode"
+                    text="General"
                     onClick={() => toggleAPI(GENERAL_MODE)}
                 />
                 <Button
                     className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
                         mode === PHOTOGRAPHY_MODE
-                            ? "bg-[#9b4f1f]"
+                            ? "bg-yellow-dark"
                             : "bg-transparent"
                     } whitespace-nowrap`}
-                    text="Photography Mode"
+                    text="Photography"
                     onClick={() => toggleAPI(PHOTOGRAPHY_MODE)}
                 />
                 <Button
                     className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
                         mode === GENERAL_MODE_V2
-                            ? "bg-[#9b4f1f]"
+                            ? "bg-yellow-dark"
                             : "bg-transparent"
                     } whitespace-nowrap`}
-                    text="General Mode V2"
+                    text="General V2"
                     onClick={() => toggleAPI(GENERAL_MODE_V2)}
+                />
+                <Button
+                    className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
+                        mode === ANIME_MODE
+                            ? "bg-yellow-dark"
+                            : "bg-transparent"
+                    } whitespace-nowrap`}
+                    text="Anime"
+                    onClick={() => toggleAPI(ANIME_MODE)}
                 />
             </div>
 

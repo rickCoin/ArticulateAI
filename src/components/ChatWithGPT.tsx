@@ -1,19 +1,15 @@
 import React, { useState, ChangeEvent, FormEvent } from "react";
-import axios from "axios";
 import UserInputForm from "./UserInputForm";
 import AIResponseSection from "./AIResponseSection";
 import {
     setPhotographicPrompt,
     setGeneralPrompt,
     setGenerateV2Prompt,
+    setAnimePrompt,
 } from "@/firebase/fireStore";
-import Button from "./Button";
+
 import openai from "@/api/openai";
-import {
-    GENERAL_MODE,
-    PHOTOGRAPHY_MODE,
-    GENERAL_MODE_V2,
-} from "@/constants/api";
+import { GENERAL_MODE, ANIME_MODE, GENERAL_MODE_V2 } from "@/constants/api";
 
 interface ChatWithGPTProps {
     userID: string;
@@ -38,26 +34,44 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
 
         try {
             let response = null;
-            if (mode === GENERAL_MODE) {
-                response = await openai.generalApiCall(userInput);
-                const newGeneratedText = response.generatedText;
-                setGeneratedText(newGeneratedText);
-                await setGeneralPrompt(userID, userInput, newGeneratedText);
-            } else if (mode === GENERAL_MODE_V2) {
-                response = await openai.generalV2ApiCall(userInput);
-                const newGeneratedText = response.generatedText;
-                setGeneratedText(newGeneratedText);
-                await setGenerateV2Prompt(userID, userInput, newGeneratedText);
-            } else {
-                response = await openai.photographyApiCall(userInput);
-                const newGeneratedText = response.generatedText;
-                setGeneratedText(newGeneratedText);
-                await setPhotographicPrompt(
-                    userID,
-                    userInput,
-                    newGeneratedText
-                );
+            switch (mode) {
+                case GENERAL_MODE:
+                    response = await openai.generalApiCall(userInput);
+                    await setGeneralPrompt(
+                        userID,
+                        userInput,
+                        response.generatedText
+                    );
+                    break;
+                case GENERAL_MODE_V2:
+                    response = await openai.generalV2ApiCall(userInput);
+                    await setGenerateV2Prompt(
+                        userID,
+                        userInput,
+                        response.generatedText
+                    );
+                    break;
+
+                case ANIME_MODE:
+                    response = await openai.animeApiCall(userInput);
+                    await setAnimePrompt(
+                        userID,
+                        userInput,
+                        response.generatedText
+                    );
+                    break;
+
+                default:
+                    response = await openai.photographyApiCall(userInput);
+                    await setPhotographicPrompt(
+                        userID,
+                        userInput,
+                        response.generatedText
+                    );
+                    break;
             }
+
+            setGeneratedText(response.generatedText);
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -81,8 +95,6 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
                 <AIResponseSection
                     aiResponse={generatedText}
                     loading={loading}
-                    toggleAPI={toggleAPI}
-                    mode={mode}
                 ></AIResponseSection>
             </div>
         </div>
