@@ -3,13 +3,12 @@ import UserInputForm from "./UserInputForm";
 import AIResponseSection from "./AIResponseSection";
 import {
     setPhotographicPrompt,
-    setGeneralPrompt,
     setGenerateV2Prompt,
     setAnimePrompt,
 } from "@/firebase/fireStore";
 
 import openai from "@/api/openai";
-import { GENERAL_MODE, ANIME_MODE, GENERAL_MODE_V2 } from "@/constants/api";
+import { ANIME_MODE, GENERAL_MODE_V2 } from "@/constants/api";
 
 interface ChatWithGPTProps {
     userID: string;
@@ -19,7 +18,7 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
     const [userInput, setUserInput] = useState("");
     const [generatedText, setGeneratedText] = useState("");
     const [loading, setLoading] = useState(false);
-    const [mode, setMode] = useState(GENERAL_MODE);
+    const [mode, setMode] = useState(GENERAL_MODE_V2);
 
     const handleChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
         setUserInput(event.target.value);
@@ -35,14 +34,6 @@ const ChatWithGPT: React.FC<ChatWithGPTProps> = ({ userID }) => {
         try {
             let response = null;
             switch (mode) {
-                case GENERAL_MODE:
-                    response = await openai.generalApiCall(userInput);
-                    await setGeneralPrompt(
-                        userID,
-                        userInput,
-                        response.generatedText
-                    );
-                    break;
                 case GENERAL_MODE_V2:
                     response = await openai.generalV2ApiCall(userInput);
                     await setGenerateV2Prompt(

@@ -175,13 +175,13 @@ const TablePage: React.FC = () => {
             <Header />
             <div className="flex gap-4 px-32 justify-center">
                 <Button
-                    className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
-                        selectedHistory === GENERAL_MODE
-                            ? " bg-yellow-light"
+                    className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
+                        selectedHistory === GENERAL_MODE_V2
+                            ? "bg-yellow-light"
                             : "bg-transparent"
                     } whitespace-nowrap`}
                     text="General Mode"
-                    onClick={() => toggleAPI(GENERAL_MODE)}
+                    onClick={() => toggleAPI(GENERAL_MODE_V2)}
                 />
                 <Button
                     className={`border text-white text-sm sm:text-xl mt-4 mb-4 rounded-2xl ${
@@ -191,15 +191,6 @@ const TablePage: React.FC = () => {
                     } whitespace-nowrap`}
                     text="Photography Mode"
                     onClick={() => toggleAPI(PHOTOGRAPHY_MODE)}
-                />
-                <Button
-                    className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
-                        selectedHistory === GENERAL_MODE_V2
-                            ? "bg-yellow-light"
-                            : "bg-transparent"
-                    } whitespace-nowrap`}
-                    text="General Mode V2"
-                    onClick={() => toggleAPI(GENERAL_MODE_V2)}
                 />
                 <Button
                     className={`border text-white mt-4 mb-4 text-sm sm:text-xl rounded-2xl ${
