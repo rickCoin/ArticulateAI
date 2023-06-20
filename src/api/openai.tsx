@@ -5,8 +5,8 @@ interface ApiResponse {
     generatedText: string;
 }
 
-const URL = "https://flask-api-383807.wn.r.appspot.com";
-// const URL = "http://127.0.0.1:8080";
+// const URL = "https://flask-api-383807.wn.r.appspot.com";
+const URL = "http://127.0.0.1:8080";
 
 async function photographyApiCall(userInput: string): Promise<ApiResponse> {
     console.log("photographyApiCall:");

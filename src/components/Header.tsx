@@ -4,6 +4,12 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/firebase/firebaseClient";
 import DiscordButton from "./DiscordButton";
 import { useRouter } from "next/router";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faBook,
+    faBookOpen,
+    faScissors,
+} from "@fortawesome/free-solid-svg-icons";
 
 const Header: React.FC = () => {
     const router = useRouter();
@@ -22,6 +28,10 @@ const Header: React.FC = () => {
         router.push("/history");
     };
 
+    const handleImageCutClick = () => {
+        router.push("/imagecut");
+    };
+
     const handleMainClick = () => {
         router.push("/main");
     };
@@ -35,11 +45,18 @@ const Header: React.FC = () => {
                     onClick={handleMainClick}
                 />
 
-                <Button
-                    text="History"
-                    className="mr-2 text-[#edde98] font-bold"
+                <button
+                    className="text-yellow-light"
                     onClick={handleHistoryClick}
-                />
+                >
+                    <FontAwesomeIcon icon={faBookOpen} />
+                </button>
+                <button
+                    className="text-yellow-light"
+                    onClick={handleImageCutClick}
+                >
+                    <FontAwesomeIcon icon={faScissors} />
+                </button>
                 <div className="flex items-center">
                     <DiscordButton className="text-2xl" />
                     <Button
