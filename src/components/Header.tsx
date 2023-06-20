@@ -37,7 +37,7 @@ const Header: React.FC = () => {
     };
 
     return (
-        <header className="bg-transparent text-white py-4 px-6">
+        <header className="bg-transparent text-white py-4 px-6 text-2xl">
             <nav className="container mx-auto flex justify-between items-center">
                 <Button
                     text="ArticulateAI"
@@ -46,7 +46,7 @@ const Header: React.FC = () => {
                 />
 
                 <button
-                    className="text-yellow-light"
+                    className="text-yellow-dark"
                     onClick={handleHistoryClick}
                 >
                     <FontAwesomeIcon icon={faBookOpen} />
